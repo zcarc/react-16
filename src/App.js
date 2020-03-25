@@ -1,88 +1,52 @@
 import React, { Component } from 'react';
-import { createPortal } from 'react-dom';
 
-const BoundaryHOC = ProtectedComponent =>
-  class Boundary extends Component {
+const MAX_PIZZAS = 20;
 
-    state = {
-      hasError: false
-    };
+const eatPizza = (state, props) => {
 
-    componentDidCatch = () => {
-      this.setState({
-        hasError: true
-      })
+  const {pizzas} = state;
+
+  if(pizzas < MAX_PIZZAS) {
+    return {
+      pizzas: pizzas + 1
     }
 
-    render() {
-
-      const { hasError } = this.state;
-
-      if(hasError) {
-        return <ErrorFallback/>
-
-      } else {
-        return <ProtectedComponent/>
-      }
-
-    }
+  } else {
+    return null
   }
 
-class ErrorMaker extends Component {
+
+}
+
+class Controlled extends Component {
   state = {
-    friends: ["jisu", "flynn", "daal", "kneeprayer"],
-  };
-
-  componentDidMount = () => {
-
-    setTimeout(() => {
-      this.setState({
-        friends: undefined
-      });
-    }, 2000);
-  
+    pizzas: 0
   };
 
   render() {
-    const { friends } = this.state;
-    return friends.map(friend => ` ${friend} `);
-  };
-}
+    const { pizzas } = this.state;
+    return (
+      <button onClick={this._handleClick}>
+        {`I have eaten ${pizzas} ${pizzas === 1 ? "pizza" : "pizzas"}`}
+      </button>
+    );
+  }
 
-const PErrorMaker = BoundaryHOC(ErrorMaker)
-
-
-class Portals extends Component {
-  render() {
-    return createPortal(<Message/>, document.getElementById("touchme"));
+  _handleClick = () => {
+    this.setState(eatPizza);
   }
 }
-
-const PPortals = BoundaryHOC(Portals)
-
-const Message = () => "Just touched it!";
-
-
-class ReturnTypes extends Component {
-  render() {
-    return 'hello!';
-  }
-}
-
-const ErrorFallback = () => " Sorry something went wrong";
 
 class App extends Component {
 
   render() {
     return (
       <>
-        <ReturnTypes/>
-        <PPortals/>
-        <PErrorMaker/>
+        <Controlled/>
       </>
     )
     
   }
 }
 
-export default BoundaryHOC(App);
+export default App;
